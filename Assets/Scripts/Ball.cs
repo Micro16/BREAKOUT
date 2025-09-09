@@ -1,0 +1,58 @@
+using UnityEngine;
+
+public class Ball : MonoBehaviour
+{
+
+    public float speed = 0f;
+    public float deflection = 0.25f;
+    
+    public void Launch()
+    {
+        transform.parent = null;
+        
+        Vector3 velocity = Vector3.up;
+
+        float r = Random.Range(-0.6f, 0.6f);
+
+        velocity += Vector3.right * r;
+
+        velocity = velocity.normalized * speed;
+
+        gameObject.GetComponent<Rigidbody>().linearVelocity = velocity;
+    }
+    
+    void Start()
+    {
+
+    }
+
+    void Update()
+    {
+        
+    }
+
+    private void OnCollisionExit(Collision collision)
+    {
+        Vector3 velocity = gameObject.GetComponent<Rigidbody>().linearVelocity;
+
+        if (Mathf.Abs(Vector3.Dot(velocity.normalized, Vector3.up)) > 0.95f)
+        {
+            velocity += velocity.x > 0 ? Vector3.right * speed * deflection : Vector3.left * speed * deflection;
+        }
+
+        if (Mathf.Abs(Vector3.Dot(velocity.normalized, Vector3.right)) > 0.95f)
+        {
+            velocity += velocity.y > 0 ? Vector3.up * speed * deflection : Vector3.down * speed * deflection;
+        }
+
+        velocity = velocity.normalized * speed;
+
+        gameObject.GetComponent<Rigidbody>().linearVelocity = velocity;
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        Destroy(gameObject);
+    }
+
+}
