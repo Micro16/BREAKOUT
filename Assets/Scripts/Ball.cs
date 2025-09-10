@@ -5,6 +5,8 @@ public class Ball : MonoBehaviour
 
     public float speed;
     public float deflection;
+
+    private int combo;
     
     public void Launch()
     {
@@ -12,7 +14,7 @@ public class Ball : MonoBehaviour
         
         Vector3 velocity = Vector3.up;
 
-        float r = Random.Range(-0.6f, 0.6f);
+        float r = Random.Range(-0.25f, 0.25f);
 
         velocity += Vector3.right * r;
 
@@ -29,6 +31,19 @@ public class Ball : MonoBehaviour
     void Update()
     {
         
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (collision.collider.tag == "brick")
+        {
+            GameManager.instance.ScoreIncrease();
+            GameManager.instance.ComboIncrease();
+        }
+        else if (collision.collider.tag == "racket")
+        {
+            GameManager.instance.ComboApplyAndReset();
+        }
     }
 
     private void OnCollisionExit(Collision collision)

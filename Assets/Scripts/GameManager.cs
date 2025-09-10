@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -9,7 +10,10 @@ public class GameManager : MonoBehaviour
 
     [Header("Game Components")]
     public Ball ball;
+    public Racket racket;
     public GameObject brickPrefab;
+    public TextMeshProUGUI ScoreUI;
+    public TextMeshProUGUI ComboUI;
 
     [Header("Bricks Parameters")]
     public float xMin;
@@ -18,12 +22,37 @@ public class GameManager : MonoBehaviour
     public float yMax;
     public int rows;
     public int columns;
+    public Color upColor;
+    public Color downColor;
 
     private bool gameStarted;
     private bool gameOver;
     private List<GameObject> bricks;
+    private int score;
+    private int combo;
 
-    public bool GameOver { get { return gameOver; } set { gameOver = value; } }
+    public bool GameOver 
+    { 
+        get 
+        { 
+            return gameOver; 
+        } 
+        set 
+        { 
+            gameOver = value;
+            if (gameOver)
+            {
+                racket.Lock();
+                DisplayGameOverUI();
+            }
+        } 
+    }
+
+    private void DisplayGameOverUI()
+    {
+        combo = 0;
+        ComboUpdate();
+    }
 
     private void SetupBricks()
     {
@@ -41,7 +70,10 @@ public class GameManager : MonoBehaviour
                 float x = xMin + (j * (prWidth + marginX));
                 float y = yMax - (i * (prHeight + marginY));
                 float z = 10f;
-                bricks.Add(Instantiate(brickPrefab, new Vector3(x, y, z), Quaternion.identity));
+                GameObject brick = Instantiate(brickPrefab, new Vector3(x, y, z), Quaternion.identity);
+                float t = (float)i / rows;
+                brick.GetComponent<Brick>().SetColor(Color.Lerp(upColor, downColor, t));
+                bricks.Add(brick);
             }
         }
     }
@@ -53,6 +85,40 @@ public class GameManager : MonoBehaviour
         {
             Debug.Log("VICTOIRE !!");
         }
+    }
+
+    private void ScoreUpdate()
+    {
+        ScoreUI.text = "SCORE : " + score.ToString();
+    }
+
+    private void ComboUpdate()
+    {
+        if (combo == 0)
+            ComboUI.text = "";
+        else if (combo >= 2)
+            ComboUI.text = "   COMBO : x" + combo.ToString();
+    }
+
+    public void ScoreIncrease()
+    {
+        score++;
+        ScoreUpdate();
+    }
+
+    public void ComboApplyAndReset()
+    {
+        if (combo >= 2)
+            score += combo;
+        ScoreUpdate();
+        combo = 0;
+        ComboUpdate();
+    }
+
+    public void ComboIncrease()
+    {
+        combo++;
+        ComboUpdate();
     }
 
     private void Awake()
@@ -71,6 +137,9 @@ public class GameManager : MonoBehaviour
         gameStarted = false;
         SetupBricks();
         gameOver = false;
+        score = 0;
+        ScoreUpdate();
+        ComboUI.text = "";
     }
 
     void Update()
