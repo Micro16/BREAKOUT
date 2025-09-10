@@ -3,8 +3,8 @@ using UnityEngine;
 public class Ball : MonoBehaviour
 {
 
-    public float speed = 0f;
-    public float deflection = 0.25f;
+    public float speed;
+    public float deflection;
     
     public void Launch()
     {
@@ -52,6 +52,7 @@ public class Ball : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        GameManager.instance.GameOver = true;
         Destroy(gameObject);
     }
 

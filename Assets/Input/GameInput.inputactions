@@ -50,6 +50,34 @@
                     "isPartOfComposite": true
                 }
             ]
+        },
+        {
+            "name": "UI",
+            "id": "86913397-eb6a-4f8f-afbf-2c52f74bcc21",
+            "actions": [
+                {
+                    "name": "New action",
+                    "type": "Button",
+                    "id": "1051fbe5-ee39-44e2-8d90-01ab01a0b067",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "736b6f7a-1b50-4aea-813a-1d954154bba1",
+                    "path": "",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "New action",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
         }
     ],
     "controlSchemes": []
