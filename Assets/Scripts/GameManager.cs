@@ -14,6 +14,9 @@ public class GameManager : MonoBehaviour
     public GameObject brickPrefab;
     public TextMeshProUGUI ScoreUI;
     public TextMeshProUGUI ComboUI;
+    public TextMeshProUGUI StageUI;
+    public TextMeshProUGUI InstructionsUI;
+    public GameObject GameOverUI;
 
     [Header("Bricks Parameters")]
     public float xMin;
@@ -25,11 +28,26 @@ public class GameManager : MonoBehaviour
     public Color upColor;
     public Color downColor;
 
+    [Header("Instructions")]
+
+    [TextArea]
+    public string arrowKeysInst = "Use the right and left arrows on the keyboard to move the paddle.";
+
+    [TextArea]
+    public string spaceKeyInst = "Press space to start the game.";
+
+
     private bool gameStarted;
     private bool gameOver;
+    private bool stageCompleted;
     private List<GameObject> bricks;
+    private int stage;
     private int score;
     private int combo;
+
+    private bool instMovePaddlePassed;
+    private bool leftKeyPressed;
+    private bool rightKeyPressed;
 
     public bool GameOver 
     { 
@@ -48,10 +66,13 @@ public class GameManager : MonoBehaviour
         } 
     }
 
+    public int Score { get { return score; } set { score = value; } }
+
     private void DisplayGameOverUI()
     {
         combo = 0;
         ComboUpdate();
+        GameOverUI.SetActive(true);
     }
 
     private void SetupBricks()
@@ -83,7 +104,10 @@ public class GameManager : MonoBehaviour
         bricks.Remove(go);
         if (bricks.Count == 0)
         {
-            Debug.Log("VICTOIRE !!");
+            // Display UI here.
+            Destroy(ball.gameObject);
+            racket.Lock();
+            stageCompleted = true;
         }
     }
 
@@ -98,6 +122,11 @@ public class GameManager : MonoBehaviour
             ComboUI.text = "";
         else if (combo >= 2)
             ComboUI.text = "   COMBO : x" + combo.ToString();
+    }
+
+    private void StageUpdate()
+    {
+        StageUI.text = "STAGE " + stage.ToString(); 
     }
 
     public void ScoreIncrease()
@@ -135,26 +164,61 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         gameStarted = false;
+        stageCompleted = false;
         SetupBricks();
         gameOver = false;
-        score = 0;
+        combo = 0;
+        stage = SessionManager.instance.Stage;
+        score = SessionManager.instance.Score;
+        racket.speed = SessionManager.instance.OverallSpeed;
+        ball.speed = SessionManager.instance.OverallSpeed;
+        StageUpdate();
         ScoreUpdate();
-        ComboUI.text = "";
+        ComboUpdate();
+        GameOverUI.SetActive(false);
+        InstructionsUI.text = SessionManager.instance.FirstSession ? arrowKeysInst : spaceKeyInst;
+        instMovePaddlePassed = SessionManager.instance.FirstSession ? false : true;
+        InstructionsUI.gameObject.SetActive(true);
+
+        if (SessionManager.instance.FirstSession)
+            SessionManager.instance.FirstSession = false;
     }
 
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            if (!gameStarted)
+            if (instMovePaddlePassed && !gameStarted)
             {
+                InstructionsUI.gameObject.SetActive(false);
                 gameStarted = true;
                 ball.Launch();
             }
 
             if (gameOver)
             {
-                SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+                racket.Lock();
+                SessionManager.instance.StartNewSession();
+            }
+
+            if (stageCompleted)
+            {
+                SessionManager.instance.LoadNextstage();
+            }
+        }
+
+        if (!gameStarted && !instMovePaddlePassed)
+        {
+            if (Input.GetKeyDown(KeyCode.LeftArrow))
+                leftKeyPressed = true;
+
+            if (Input.GetKeyDown(KeyCode.RightArrow))
+                rightKeyPressed = true;
+
+            instMovePaddlePassed = leftKeyPressed & rightKeyPressed;
+            if (instMovePaddlePassed)
+            {
+                InstructionsUI.text = spaceKeyInst;
             }
         }
     }

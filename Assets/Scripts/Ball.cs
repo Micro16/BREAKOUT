@@ -50,12 +50,12 @@ public class Ball : MonoBehaviour
     {
         Vector3 velocity = gameObject.GetComponent<Rigidbody>().linearVelocity;
 
-        if (Mathf.Abs(Vector3.Dot(velocity.normalized, Vector3.up)) > 0.95f)
+        if (Mathf.Abs(Vector3.Dot(velocity.normalized, Vector3.up)) > 0.8f)
         {
             velocity += velocity.x > 0 ? Vector3.right * speed * deflection : Vector3.left * speed * deflection;
         }
 
-        if (Mathf.Abs(Vector3.Dot(velocity.normalized, Vector3.right)) > 0.95f)
+        if (Mathf.Abs(Vector3.Dot(velocity.normalized, Vector3.right)) > 0.8f)
         {
             velocity += velocity.y > 0 ? Vector3.up * speed * deflection : Vector3.down * speed * deflection;
         }
